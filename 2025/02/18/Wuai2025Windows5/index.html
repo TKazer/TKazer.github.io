@@ -1,0 +1,207 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>吾爱2025-Windows逆向高级题-5 | Liv's blog</title><meta name="author" content="Liv"><meta name="copyright" content="Liv"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="吾爱2025-Windows逆向高级题-5考点：异步消息执行，变种tea展开、变种MD5、时间戳、Flag分段检查 解题过程这一段是获取两个编辑框的内容，即uid和flag，然后flag要符合异或的那一系列条件，实际格式是flag{…}。  跟到这边发现有一系列函数，main_program里面的执行验证按钮后主流程，execute是main_program里面通过不同消息来执行不同命令的函数。（">
+<meta property="og:type" content="article">
+<meta property="og:title" content="吾爱2025-Windows逆向高级题-5">
+<meta property="og:url" content="https://tkazer.github.io/2025/02/18/Wuai2025Windows5/index.html">
+<meta property="og:site_name" content="Liv&#39;s blog">
+<meta property="og:description" content="吾爱2025-Windows逆向高级题-5考点：异步消息执行，变种tea展开、变种MD5、时间戳、Flag分段检查 解题过程这一段是获取两个编辑框的内容，即uid和flag，然后flag要符合异或的那一系列条件，实际格式是flag{…}。  跟到这边发现有一系列函数，main_program里面的执行验证按钮后主流程，execute是main_program里面通过不同消息来执行不同命令的函数。（">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tkazer.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-02-18T09:32:48.000Z">
+<meta property="article:modified_time" content="2025-02-21T03:18:30.467Z">
+<meta property="article:author" content="Liv">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tkazer.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "吾爱2025-Windows逆向高级题-5",
+  "url": "https://tkazer.github.io/2025/02/18/Wuai2025Windows5/",
+  "image": "https://tkazer.github.io/img/butterfly-icon.png",
+  "datePublished": "2025-02-18T09:32:48.000Z",
+  "dateModified": "2025-02-21T03:18:30.467Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Liv",
+      "url": "https://tkazer.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://tkazer.github.io/2025/02/18/Wuai2025Windows5/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '吾爱2025-Windows逆向高级题-5',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="Liv's blog" type="application/atom+xml">
+</head><body><div id="web_bg" style="background-image: url(https://i.postimg.cc/Y2VMBKkT/windows-11-landscape-scenery-sunrise-stock-day-light-3840x2400-5667.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://i.postimg.cc/C5dMXV2c/pic.png" alt="Logo"><span class="site-name">Liv's blog</span></a><a class="nav-page-title" href="/"><span class="site-name">吾爱2025-Windows逆向高级题-5</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">吾爱2025-Windows逆向高级题-5</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-02-18T09:32:48.000Z" title="发表于 2025-02-18 17:32:48">2025-02-18</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-02-21T03:18:30.467Z" title="更新于 2025-02-21 11:18:30">2025-02-21</time></span><span class="post-meta-categories"><span class="post-meta-separator">|</span><i class="fas fa-inbox fa-fw post-meta-icon"></i><a class="post-meta-categories" href="/categories/%E9%80%86%E5%90%91%E7%BB%83%E4%B9%A0/">逆向练习</a></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="吾爱2025-Windows逆向高级题-5"><a href="#吾爱2025-Windows逆向高级题-5" class="headerlink" title="吾爱2025-Windows逆向高级题-5"></a>吾爱2025-Windows逆向高级题-5</h1><p>考点：异步消息执行，变种tea展开、变种MD5、时间戳、Flag分段检查</p>
+<h1 id="解题过程"><a href="#解题过程" class="headerlink" title="解题过程"></a>解题过程</h1><p>这一段是获取两个编辑框的内容，即uid和flag，然后flag要符合异或的那一系列条件，实际格式是flag{…}。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/1.png" alt="alt text"></p>
+<p>跟到这边发现有一系列函数，main_program里面的执行验证按钮后主流程，execute是main_program里面通过不同消息来执行不同命令的函数。（都是自命名的函数，仅代表个人想法）</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/2.png" alt="alt text"></p>
+<h2 id="execute函数"><a href="#execute函数" class="headerlink" title="execute函数"></a>execute函数</h2><p>其他消息：将flag括号内数据进行unhex（如1122字符串直接转成0x11,0x22数据）</p>
+<p>0x35消息：获取当前半小时整点时间戳数据。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/3.png" alt="alt text"></p>
+<p>0x55消息：通过利用变种MD5+Salt将解密完数据的前十六字节计算得到4字节数值。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/4.png" alt="alt text"></p>
+<p>0x25消息：unhex后数据进行解密（Decrypt函数）。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/5.png" alt="alt text"></p>
+<h2 id="main-program函数"><a href="#main-program函数" class="headerlink" title="main_program函数"></a>main_program函数</h2><h3 id="第一部分"><a href="#第一部分" class="headerlink" title="第一部分"></a>第一部分</h3><p>获取flag括号内数据通过消息分发执行execute的unhex消息，然后再执行execute的Decrypt函数，解密unhex后的数据，将解密完的数据长度赋值给v12。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/6.png" alt="alt text"></p>
+<h3 id="第二部分"><a href="#第二部分" class="headerlink" title="第二部分"></a>第二部分</h3><p>将解密完数据的前16字节进行custom_MD5，得到4字节数据，然后判断解密后数据第17个字节开始四个字节是否和计算得到的4字节数据相等。</p>
+<p>如果相等就再次判断v12，即解密后数据长度，判断是否等于20。</p>
+<p>再调用execute的时间戳获取消息，得到8字节时间戳数据。</p>
+<p>最后再检查解密后数据前8字节是否等于时间戳数据，以及第九个字节往后8字节是否等于编辑框输入的uid。</p>
+<h3 id="结论"><a href="#结论" class="headerlink" title="结论"></a>结论</h3><p>输入的flag得是被和Decrypt相对于的加密函数进行加密后的数据，加密前格式：{半时整点时间戳（8字节），uid（8字节），Custom_MD5（前面十六字节）（4字节），0x04填充（四个字节）}</p>
+<p>最后一部分填充会在下面Decrypt函数里面说明来由。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/7.png" alt="alt text"></p>
+<h2 id="Decrypt函数（sub-7FF7FAC92C40）"><a href="#Decrypt函数（sub-7FF7FAC92C40）" class="headerlink" title="Decrypt函数（sub_7FF7FAC92C40）"></a>Decrypt函数（sub_7FF7FAC92C40）</h2><p>要求unhex后数据长度要是8的倍数，且利用一系列计算得到v12这个数据，参与内部解密的Key生成，最后还要求解密完的数据符合一系列条件验证。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/8.png" alt="alt text"></p>
+<h3 id="解密后数据条件验证"><a href="#解密后数据条件验证" class="headerlink" title="解密后数据条件验证"></a>解密后数据条件验证</h3><p>从这部分逻辑代码可以分析，他是将最后v8指向最后一个数据，然后v9赋值最后一个数据，然后v8循环递减，直到当前v8指向v8开始往前的第v9个指针结束，然后最后解密后数据长度&#x3D;当前长度-v9。</p>
+<p>已知解密后前面已经占用了20字节（时间戳+uid+md5），在main_program也已知解密后数据长度要等于20，所以可以知道这边v9必须等于4，所以v8等于4，最后这边一共占用4个字节，即{4,4,4,4}，这样经过这边的验证最后的size才会等于20。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/9.png" alt="alt text"></p>
+<h3 id="dec函数"><a href="#dec函数" class="headerlink" title="dec函数"></a>dec函数</h3><p>将unhex后数据按8字节分块进行tea的解密，tea加密的Key由上一层传入的v12通过RC4得到，且每次解密Key都会变化（固定变化），直接动调就可以拿到几次解密用到的Key值。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/10.png" alt="alt text"></p>
+<p>下面一系列解密就是tea的解密，不过是展开，可以数出一共是12轮，且Delta直接可以通过两次sum的值相减得到（由于tea解密这边应该是加上sum，ida伪代码展示是减，但是实际计算后数值一样），B979379E就是tea解密用到的Delta。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/11.png" alt="alt text"></p>
+<p>所以就可以通过动调得到的几次Key和Delta写出tea的加密代码。</p>
+<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">uint32_t</span> key1[] =</span><br><span class="line">&#123;</span><br><span class="line">    <span class="number">0xD7851B65</span>,</span><br><span class="line">    <span class="number">0x473457C1</span>,</span><br><span class="line">    <span class="number">0x1231F787</span>,</span><br><span class="line">    <span class="number">0x9ACD6D9A</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">uint32_t</span> key2[] =</span><br><span class="line">&#123;</span><br><span class="line">    <span class="number">0xB728E994</span>,</span><br><span class="line">    <span class="number">0x1746382E</span>,</span><br><span class="line">    <span class="number">0xC52D865C</span>,</span><br><span class="line">    <span class="number">0x10778A6E</span></span><br><span class="line">&#125;;</span><br><span class="line"><span class="type">uint32_t</span> key3[] =</span><br><span class="line">&#123;</span><br><span class="line">    <span class="number">0x7459F437</span>,</span><br><span class="line">    <span class="number">0x90D1E5D</span>,</span><br><span class="line">    <span class="number">0x779375B2</span>,</span><br><span class="line">    <span class="number">0xEFCB8541</span></span><br><span class="line">&#125;;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">tea_encrypt</span><span class="params">(<span class="type">uint32_t</span> v[<span class="number">2</span>], <span class="type">const</span> <span class="type">uint32_t</span> k[<span class="number">4</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">uint32_t</span> v0 = v[<span class="number">0</span>], v1 = v[<span class="number">1</span>], sum = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> delta = <span class="number">0xB979379E</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; <span class="number">12</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        sum += delta;</span><br><span class="line">        v1 += ((v0 &lt;&lt; <span class="number">4</span>) + k[<span class="number">2</span>]) ^ (v0 + sum) ^ ((v0 &gt;&gt; <span class="number">5</span>) + k[<span class="number">3</span>]);</span><br><span class="line">        v0 += ((v1 &lt;&lt; <span class="number">4</span>) + k[<span class="number">0</span>]) ^ (v1 + sum) ^ ((v1 &gt;&gt; <span class="number">5</span>) + k[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    v[<span class="number">0</span>] = v0;</span><br><span class="line">    v[<span class="number">1</span>] = v1;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="主解题流程"><a href="#主解题流程" class="headerlink" title="主解题流程"></a>主解题流程</h2><p>通过用c++实现这部分代码，获取时间戳数据（8字节）。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/12.png" alt="alt text"></p>
+<p>然后将uid转为8字节字节数据拼接到时间戳字节后面。</p>
+<p>MD5值暂时填充4个0x00，将MD5值和4个0x04字节拼接上。</p>
+<p>将完整数据进行tea_encrypt，再用flag{}包裹填入编辑框进行验证。</p>
+<p>在MD5生成代码处，断点在箭头处，即可得到MD5四字节数据。</p>
+<p><img src="/2025/02/18/Wuai2025Windows5/13.png" alt="alt text"></p>
+<p>最终再重复上面步骤即可得到flag。</p>
+<h1 id="完整代码"><a href="#完整代码" class="headerlink" title="完整代码"></a>完整代码</h1><figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br><span class="line">91</span><br><span class="line">92</span><br><span class="line">93</span><br><span class="line">94</span><br><span class="line">95</span><br><span class="line">96</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">void</span> <span class="title">tea_encrypt</span><span class="params">(<span class="type">uint32_t</span> v[<span class="number">2</span>], <span class="type">const</span> <span class="type">uint32_t</span> k[<span class="number">4</span>])</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">uint32_t</span> v0 = v[<span class="number">0</span>], v1 = v[<span class="number">1</span>], sum = <span class="number">0</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint32_t</span> delta = <span class="number">0xB979379E</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">uint32_t</span> i = <span class="number">0</span>; i &lt; <span class="number">12</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        sum += delta;</span><br><span class="line">        v1 += ((v0 &lt;&lt; <span class="number">4</span>) + k[<span class="number">2</span>]) ^ (v0 + sum) ^ ((v0 &gt;&gt; <span class="number">5</span>) + k[<span class="number">3</span>]);</span><br><span class="line">        v0 += ((v1 &lt;&lt; <span class="number">4</span>) + k[<span class="number">0</span>]) ^ (v1 + sum) ^ ((v1 &gt;&gt; <span class="number">5</span>) + k[<span class="number">1</span>]);</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    v[<span class="number">0</span>] = v0;</span><br><span class="line">    v[<span class="number">1</span>] = v1;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">/*</span></span><br><span class="line"><span class="comment">输入格式：</span></span><br><span class="line"><span class="comment">flag</span></span><br><span class="line"><span class="comment">&#123;</span></span><br><span class="line"><span class="comment">tea_enc</span></span><br><span class="line"><span class="comment">(</span></span><br><span class="line"><span class="comment">    timestamp 8字节</span></span><br><span class="line"><span class="comment">    uid 8字节</span></span><br><span class="line"><span class="comment">    md5 4字节</span></span><br><span class="line"><span class="comment">    0x04*4 4字节填充</span></span><br><span class="line"><span class="comment">)</span></span><br><span class="line"><span class="comment">&#125;</span></span><br><span class="line"><span class="comment">*/</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="comment">// 动调得到的三个Key</span></span><br><span class="line">    <span class="type">uint32_t</span> key1[] =</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="number">0xD7851B65</span>,</span><br><span class="line">        <span class="number">0x473457C1</span>,</span><br><span class="line">        <span class="number">0x1231F787</span>,</span><br><span class="line">        <span class="number">0x9ACD6D9A</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">uint32_t</span> key2[] =</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="number">0xB728E994</span>,</span><br><span class="line">        <span class="number">0x1746382E</span>,</span><br><span class="line">        <span class="number">0xC52D865C</span>,</span><br><span class="line">        <span class="number">0x10778A6E</span></span><br><span class="line">    &#125;;</span><br><span class="line">    <span class="type">uint32_t</span> key3[] =</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="number">0x7459F437</span>,</span><br><span class="line">        <span class="number">0x90D1E5D</span>,</span><br><span class="line">        <span class="number">0x779375B2</span>,</span><br><span class="line">        <span class="number">0xEFCB8541</span></span><br><span class="line">    &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint8_t</span> timestamp_bytes[<span class="number">8</span>]&#123;&#125;;</span><br><span class="line">    <span class="comment">// 8字节下的UID</span></span><br><span class="line">    <span class="type">uint8_t</span> uid[]&#123; <span class="number">0x50</span>, <span class="number">0x04</span>, <span class="number">0x23</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span>, <span class="number">0x00</span> &#125;;</span><br><span class="line">    <span class="comment">// 动调得到MD5四个字节，加上最后4个0x04填充</span></span><br><span class="line">    <span class="type">uint8_t</span> md5_and_pad[]&#123; <span class="number">0xD2</span>, <span class="number">0x63</span>, <span class="number">0xE4</span>, <span class="number">0xE6</span>, <span class="number">0x04</span>, <span class="number">0x04</span>, <span class="number">0x04</span>, <span class="number">0x04</span> &#125;;</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 半时整点时间戳计算</span></span><br><span class="line">    FILETIME time&#123;&#125;;</span><br><span class="line">    DWORD64 timestamp&#123;&#125;;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">GetSystemTimeAsFileTime</span>(&amp;time);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">memcpy</span>((<span class="type">void</span>*)(&amp;timestamp), (<span class="type">void</span>*)(&amp;time), <span class="number">8</span>);</span><br><span class="line">    timestamp = <span class="number">1800</span> * ((timestamp / <span class="number">0x989680</span> - <span class="number">0x2B6109100LL</span>) / <span class="number">0x708</span>);</span><br><span class="line">    <span class="built_in">memcpy</span>((<span class="type">void</span>*)(timestamp_bytes), (<span class="type">void</span>*)(&amp;timestamp), <span class="number">8</span>);</span><br><span class="line"></span><br><span class="line">    <span class="comment">// 加密数据</span></span><br><span class="line">    <span class="built_in">tea_encrypt</span>((<span class="type">uint32_t</span>*)timestamp_bytes, (<span class="type">uint32_t</span>*)key1);</span><br><span class="line">    <span class="built_in">tea_encrypt</span>((<span class="type">uint32_t</span>*)uid, (<span class="type">uint32_t</span>*)key2);</span><br><span class="line">    <span class="built_in">tea_encrypt</span>((<span class="type">uint32_t</span>*)md5_and_pad, (<span class="type">uint32_t</span>*)key3);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;flag&#123;&quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X&quot;</span>, timestamp_bytes[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X&quot;</span>, uid[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">8</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X&quot;</span>, md5_and_pad[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;&#125;&quot;</span>);</span><br><span class="line">	<span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h1 id="心得"><a href="#心得" class="headerlink" title="心得"></a>心得</h1><p>动调调试分析程序主体流程很重要，要先了解大概执行框架才能逐步往下层分析，且上层一些代码条件有助于下层的分析。</p>
+<p>然后踩了一个严重的坑就是IDA伪代码里面的变量值和实际值一些情况下是不一样的，之前写题没在意那么多，这次很多地方都发现有这种问题，卡了我分析好久。所以关键代码段最好用汇编逐步分析，看实际数据的变化。</p>
+</article><div class="tag_share"><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related" href="/2025/02/12/VNCTF2025/" title="VNCTF2025"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">VNCTF2025</div></div><div class="info-2"><div class="info-item-1">VNCTF 2025 WPMiscVN_LangIDA分析VN_Lang_XXXX.exe字符串搜索VN得到Flag。  FlagVNCTF{i9UQEqFXgbJBI1LasSZmBxxXSNYFRyCkpydKvhZo7d9Ai} Cryptoeasymathai一把梭。 dec.sage: 12345678910111213141516171819202122232425from sage.all import ZZ, PolynomialRingR = PolynomialRing(ZZ, &quot;x&quot;)x = R.gen()polynomial = x**3 - 15264966144147258587171776703005926730518438603688487721465*x**2 + 76513250180666948190254989703768338299723386154619468700730085586057638716434556720233473454400881002065319569292923*x -...</div></div></div></a><a class="pagination-related" href="/2025/02/20/Ciscn-reverse-vt/" title="Ciscn2024-逆向0解题-VT"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-right"><div class="info-1"><div class="info-item-1">下一篇</div><div class="info-item-2">Ciscn2024-逆向0解题-VT</div></div><div class="info-2"><div class="info-item-1">...</div></div></div></a></nav></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Liv</div><div class="author-info-description">欢迎来到Liv的博客。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">10</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/TKazer"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/TKazer" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%90%BE%E7%88%B12025-Windows%E9%80%86%E5%90%91%E9%AB%98%E7%BA%A7%E9%A2%98-5"><span class="toc-number">1.</span> <span class="toc-text">吾爱2025-Windows逆向高级题-5</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%A7%A3%E9%A2%98%E8%BF%87%E7%A8%8B"><span class="toc-number">2.</span> <span class="toc-text">解题过程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#execute%E5%87%BD%E6%95%B0"><span class="toc-number">2.1.</span> <span class="toc-text">execute函数</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#main-program%E5%87%BD%E6%95%B0"><span class="toc-number">2.2.</span> <span class="toc-text">main_program函数</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%B8%80%E9%83%A8%E5%88%86"><span class="toc-number">2.2.1.</span> <span class="toc-text">第一部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%AC%AC%E4%BA%8C%E9%83%A8%E5%88%86"><span class="toc-number">2.2.2.</span> <span class="toc-text">第二部分</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BB%93%E8%AE%BA"><span class="toc-number">2.2.3.</span> <span class="toc-text">结论</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#Decrypt%E5%87%BD%E6%95%B0%EF%BC%88sub-7FF7FAC92C40%EF%BC%89"><span class="toc-number">2.3.</span> <span class="toc-text">Decrypt函数（sub_7FF7FAC92C40）</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E8%A7%A3%E5%AF%86%E5%90%8E%E6%95%B0%E6%8D%AE%E6%9D%A1%E4%BB%B6%E9%AA%8C%E8%AF%81"><span class="toc-number">2.3.1.</span> <span class="toc-text">解密后数据条件验证</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#dec%E5%87%BD%E6%95%B0"><span class="toc-number">2.3.2.</span> <span class="toc-text">dec函数</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%BB%E8%A7%A3%E9%A2%98%E6%B5%81%E7%A8%8B"><span class="toc-number">2.4.</span> <span class="toc-text">主解题流程</span></a></li></ol></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%AE%8C%E6%95%B4%E4%BB%A3%E7%A0%81"><span class="toc-number">3.</span> <span class="toc-text">完整代码</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%BF%83%E5%BE%97"><span class="toc-number">4.</span> <span class="toc-text">心得</span></a></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/05/25/ISCC-Enigma/" title="ISCC擂台赛逆向题 Enigma 题解">ISCC擂台赛逆向题 Enigma 题解</a><time datetime="2025-05-25T04:56:13.000Z" title="发表于 2025-05-25 12:56:13">2025-05-25</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/27/ACTF-Deeptx/" title="ACTF2025 Reverse Deeptx WP">ACTF2025 Reverse Deeptx WP</a><time datetime="2025-04-27T12:22:12.000Z" title="发表于 2025-04-27 20:22:12">2025-04-27</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/13/TGCTF2025/" title="TGCTF 2025 逆向WP">TGCTF 2025 逆向WP</a><time datetime="2025-04-13T11:12:25.000Z" title="发表于 2025-04-13 19:12:25">2025-04-13</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/04/07/XYCTF2025/" title="XYCTF2025">XYCTF2025</a><time datetime="2025-04-07T10:30:03.000Z" title="发表于 2025-04-07 18:30:03">2025-04-07</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/03/31/2025Tencent/" title="2025腾讯游戏安全技术竞赛 PC客户端安全 初赛WP">2025腾讯游戏安全技术竞赛 PC客户端安全 初赛WP</a><time datetime="2025-03-31T10:30:26.000Z" title="发表于 2025-03-31 18:30:26">2025-03-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://i.postimg.cc/Y2VMBKkT/windows-11-landscape-scenery-sunrise-stock-day-light-3840x2400-5667.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Liv</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
