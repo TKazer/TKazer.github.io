@@ -1,0 +1,323 @@
+<!DOCTYPE html><html lang="zh-CN" data-theme="light"><head><meta charset="UTF-8"><meta http-equiv="X-UA-Compatible" content="IE=edge"><meta name="viewport" content="width=device-width, initial-scale=1.0,viewport-fit=cover"><title>强网杯S9 Secured Personal Vault WP | Liv's blog</title><meta name="author" content="Liv"><meta name="copyright" content="Liv"><meta name="format-detection" content="telephone=no"><meta name="theme-color" content="#ffffff"><meta name="description" content="Secured Personal Vault题目考点取证、进程&amp;驱动逆向、msfs.sys逆向、Mailslot结构逆向 0x1 取证阶段下载题目附件，得到MEMORY.DMP，是Windows的系统转储文件格式，使用Windbg打开该文件。 点击!analyze -v，进行dmp分析。  可以发现系统是触发了蓝屏，并且能看到蓝屏时保存的栈信息，是由aPersonalVault+0x2a4">
+<meta property="og:type" content="article">
+<meta property="og:title" content="强网杯S9 Secured Personal Vault WP">
+<meta property="og:url" content="https://tkazer.github.io/2025/10/22/QWBS9-Secured-Personal-Vault/index.html">
+<meta property="og:site_name" content="Liv&#39;s blog">
+<meta property="og:description" content="Secured Personal Vault题目考点取证、进程&amp;驱动逆向、msfs.sys逆向、Mailslot结构逆向 0x1 取证阶段下载题目附件，得到MEMORY.DMP，是Windows的系统转储文件格式，使用Windbg打开该文件。 点击!analyze -v，进行dmp分析。  可以发现系统是触发了蓝屏，并且能看到蓝屏时保存的栈信息，是由aPersonalVault+0x2a4">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://tkazer.github.io/img/butterfly-icon.png">
+<meta property="article:published_time" content="2025-10-22T10:21:16.000Z">
+<meta property="article:modified_time" content="2025-10-22T15:46:56.472Z">
+<meta property="article:author" content="Liv">
+<meta property="article:tag" content="CTF比赛">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tkazer.github.io/img/butterfly-icon.png"><script type="application/ld+json">{
+  "@context": "https://schema.org",
+  "@type": "BlogPosting",
+  "headline": "强网杯S9 Secured Personal Vault WP",
+  "url": "https://tkazer.github.io/2025/10/22/QWBS9-Secured-Personal-Vault/",
+  "image": "https://tkazer.github.io/img/butterfly-icon.png",
+  "datePublished": "2025-10-22T10:21:16.000Z",
+  "dateModified": "2025-10-22T15:46:56.472Z",
+  "author": [
+    {
+      "@type": "Person",
+      "name": "Liv",
+      "url": "https://tkazer.github.io/"
+    }
+  ]
+}</script><link rel="shortcut icon" href="/img/favicon.png"><link rel="canonical" href="https://tkazer.github.io/2025/10/22/QWBS9-Secured-Personal-Vault/index.html"><link rel="preconnect" href="//cdn.jsdelivr.net"/><link rel="preconnect" href="//busuanzi.ibruce.info"/><link rel="stylesheet" href="/css/index.css"><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free/css/all.min.css"><script>
+    (() => {
+      
+    const saveToLocal = {
+      set: (key, value, ttl) => {
+        if (!ttl) return
+        const expiry = Date.now() + ttl * 86400000
+        localStorage.setItem(key, JSON.stringify({ value, expiry }))
+      },
+      get: key => {
+        const itemStr = localStorage.getItem(key)
+        if (!itemStr) return undefined
+        const { value, expiry } = JSON.parse(itemStr)
+        if (Date.now() > expiry) {
+          localStorage.removeItem(key)
+          return undefined
+        }
+        return value
+      }
+    }
+
+    window.btf = {
+      saveToLocal,
+      getScript: (url, attr = {}) => new Promise((resolve, reject) => {
+        const script = document.createElement('script')
+        script.src = url
+        script.async = true
+        Object.entries(attr).forEach(([key, val]) => script.setAttribute(key, val))
+        script.onload = script.onreadystatechange = () => {
+          if (!script.readyState || /loaded|complete/.test(script.readyState)) resolve()
+        }
+        script.onerror = reject
+        document.head.appendChild(script)
+      }),
+      getCSS: (url, id) => new Promise((resolve, reject) => {
+        const link = document.createElement('link')
+        link.rel = 'stylesheet'
+        link.href = url
+        if (id) link.id = id
+        link.onload = link.onreadystatechange = () => {
+          if (!link.readyState || /loaded|complete/.test(link.readyState)) resolve()
+        }
+        link.onerror = reject
+        document.head.appendChild(link)
+      }),
+      addGlobalFn: (key, fn, name = false, parent = window) => {
+        if (!false && key.startsWith('pjax')) return
+        const globalFn = parent.globalFn || {}
+        globalFn[key] = globalFn[key] || {}
+        globalFn[key][name || Object.keys(globalFn[key]).length] = fn
+        parent.globalFn = globalFn
+      }
+    }
+  
+      
+      const activateDarkMode = () => {
+        document.documentElement.setAttribute('data-theme', 'dark')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#0d0d0d')
+        }
+      }
+      const activateLightMode = () => {
+        document.documentElement.setAttribute('data-theme', 'light')
+        if (document.querySelector('meta[name="theme-color"]') !== null) {
+          document.querySelector('meta[name="theme-color"]').setAttribute('content', '#ffffff')
+        }
+      }
+
+      btf.activateDarkMode = activateDarkMode
+      btf.activateLightMode = activateLightMode
+
+      const theme = saveToLocal.get('theme')
+    
+          theme === 'dark' ? activateDarkMode() : theme === 'light' ? activateLightMode() : null
+        
+      
+      const asideStatus = saveToLocal.get('aside-status')
+      if (asideStatus !== undefined) {
+        document.documentElement.classList.toggle('hide-aside', asideStatus === 'hide')
+      }
+    
+      
+    const detectApple = () => {
+      if (/iPad|iPhone|iPod|Macintosh/.test(navigator.userAgent)) {
+        document.documentElement.classList.add('apple')
+      }
+    }
+    detectApple()
+  
+    })()
+  </script><script>const GLOBAL_CONFIG = {
+  root: '/',
+  algolia: undefined,
+  localSearch: undefined,
+  translate: undefined,
+  highlight: {"plugin":"highlight.js","highlightCopy":true,"highlightLang":true,"highlightHeightLimit":false,"highlightFullpage":false,"highlightMacStyle":true},
+  copy: {
+    success: '复制成功',
+    error: '复制失败',
+    noSupport: '浏览器不支持'
+  },
+  relativeDate: {
+    homepage: false,
+    post: false
+  },
+  runtime: '',
+  dateSuffix: {
+    just: '刚刚',
+    min: '分钟前',
+    hour: '小时前',
+    day: '天前',
+    month: '个月前'
+  },
+  copyright: undefined,
+  lightbox: 'null',
+  Snackbar: undefined,
+  infinitegrid: {
+    js: 'https://cdn.jsdelivr.net/npm/@egjs/infinitegrid/dist/infinitegrid.min.js',
+    buttonText: '加载更多'
+  },
+  isPhotoFigcaption: false,
+  islazyloadPlugin: false,
+  isAnchor: false,
+  percent: {
+    toc: true,
+    rightside: false,
+  },
+  autoDarkmode: false
+}</script><script id="config-diff">var GLOBAL_CONFIG_SITE = {
+  title: '强网杯S9 Secured Personal Vault WP',
+  isHighlightShrink: false,
+  isToc: true,
+  pageType: 'post'
+}</script><meta name="generator" content="Hexo 7.3.0"><link rel="alternate" href="/atom.xml" title="Liv's blog" type="application/atom+xml">
+</head><body><div id="web_bg" style="background-image: url(https://i.postimg.cc/Y2VMBKkT/windows-11-landscape-scenery-sunrise-stock-day-light-3840x2400-5667.jpg);"></div><div id="sidebar"><div id="menu-mask"></div><div id="sidebar-menus"><div class="avatar-img text-center"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="site-data text-center"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div></div></div><div class="post" id="body-wrap"><header class="not-top-img" id="page-header"><nav id="nav"><span id="blog-info"><a class="nav-site-title" href="/"><img class="site-icon" src="https://i.postimg.cc/C5dMXV2c/pic.png" alt="Logo"><span class="site-name">Liv's blog</span></a><a class="nav-page-title" href="/"><span class="site-name">强网杯S9 Secured Personal Vault WP</span></a></span><div id="menus"><div class="menus_items"><div class="menus_item"><a class="site-page" href="/"><i class="fa-fw fas fa-home"></i><span> 主页</span></a></div><div class="menus_item"><a class="site-page" href="/archives/"><i class="fa-fw fas fa-archive"></i><span> 目录</span></a></div><div class="menus_item"><a class="site-page" href="/categories/"><i class="fa-fw fas fa-folder-open"></i><span> 分类</span></a></div><div class="menus_item"><a class="site-page" href="/link/"><i class="fa-fw fas fa-link"></i><span> 友链</span></a></div><div class="menus_item"><a class="site-page" href="/about/"><i class="fa-fw fas fa-heart"></i><span> 关于</span></a></div></div><div id="toggle-menu"><span class="site-page"><i class="fas fa-bars fa-fw"></i></span></div></div></nav></header><main class="layout" id="content-inner"><div id="post"><div id="post-info"><h1 class="post-title">强网杯S9 Secured Personal Vault WP</h1><div id="post-meta"><div class="meta-firstline"><span class="post-meta-date"><i class="far fa-calendar-alt fa-fw post-meta-icon"></i><span class="post-meta-label">发表于</span><time class="post-meta-date-created" datetime="2025-10-22T10:21:16.000Z" title="发表于 2025-10-22 18:21:16">2025-10-22</time><span class="post-meta-separator">|</span><i class="fas fa-history fa-fw post-meta-icon"></i><span class="post-meta-label">更新于</span><time class="post-meta-date-updated" datetime="2025-10-22T15:46:56.472Z" title="更新于 2025-10-22 23:46:56">2025-10-22</time></span></div><div class="meta-secondline"><span class="post-meta-separator">|</span><span class="post-meta-pv-cv" id="" data-flag-title=""><i class="far fa-eye fa-fw post-meta-icon"></i><span class="post-meta-label">浏览量:</span><span id="busuanzi_value_page_pv"><i class="fa-solid fa-spinner fa-spin"></i></span></span></div></div></div><article class="container post-content" id="article-container"><h1 id="Secured-Personal-Vault"><a href="#Secured-Personal-Vault" class="headerlink" title="Secured Personal Vault"></a>Secured Personal Vault</h1><h2 id="题目考点"><a href="#题目考点" class="headerlink" title="题目考点"></a>题目考点</h2><p>取证、进程&amp;驱动逆向、msfs.sys逆向、Mailslot结构逆向</p>
+<h2 id="0x1-取证阶段"><a href="#0x1-取证阶段" class="headerlink" title="0x1 取证阶段"></a>0x1 取证阶段</h2><p>下载题目附件，得到MEMORY.DMP，是Windows的系统转储文件格式，使用Windbg打开该文件。</p>
+<p>点击<code>!analyze -v</code>，进行dmp分析。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image.png" alt="alt text"></p>
+<p>可以发现系统是触发了蓝屏，并且能看到蓝屏时保存的栈信息，是由<code>aPersonalVault+0x2a4b</code>开始调用，然后到最后<code>personalVaultKernel+0x10f5</code>代码触发蓝屏。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-1.png" alt="alt text"></p>
+<p>跳转到触发蓝屏的汇编代码，可以看到是xor清零了eax，然后后续又访问了[rax]，导致空指针异常。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-2.png" alt="alt text"></p>
+<p>可以看到起始Call是在<code>aPersonalVault.exe</code>进程中，而触发蓝屏异常的是<code>personalVaultKernel.sys</code>，所以接下来就是Dump转储这两个文件进行分析。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-3.png" alt="alt text"></p>
+<p>使用<code>!process 0 0</code>命令遍历当前所有进程，发现当前运行的是存在两个<code>aPersonalVault.exe</code>进程。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PROCESS ffffef063fbe8080</span><br><span class="line">    SessionId: none  Cid: 0fa8    Peb: 9f83185000  ParentCid: 14b0</span><br><span class="line">    DirBase: 840fe000  ObjectTable: ffffa687a7241740  HandleCount: 161.</span><br><span class="line">    Image: aPersonalVault.exe</span><br><span class="line"></span><br><span class="line">PROCESS ffffef063fbc1080</span><br><span class="line">    SessionId: none  Cid: 26f0    Peb: 9216e1a000  ParentCid: 14b0</span><br><span class="line">    DirBase: 1296dc000  ObjectTable: ffffa687a6dd3b40  HandleCount: 165.</span><br><span class="line">    Image: aPersonalVault.exe</span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-4.png" alt="alt text"></p>
+<p>直接通过Windbg的<code>.writemem</code>指令发现无法转储成功完整的进程和sys，所以尝试使用Volatility3进行直接原文件转储。</p>
+<p>使用Volatility3命令<code>python .\vol.py -f .\MEMORY.DMP windows.filescan</code>遍历所有文件，找到对应的几个文件的地址，再使用<code>python .\vol.py -f .\MEMORY.DMP windows.dumpfiles --virtaddr 地址</code>进行转储即可得到原始文件。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-5.png" alt="alt text"></p>
+<h2 id="0x2-逆向阶段"><a href="#0x2-逆向阶段" class="headerlink" title="0x2 逆向阶段"></a>0x2 逆向阶段</h2><h3 id="1-R0驱动逆向分析"><a href="#1-R0驱动逆向分析" class="headerlink" title="1. R0驱动逆向分析"></a>1. R0驱动逆向分析</h3><p>找到关键入口点函数，发现这边是遍历了进程，寻找<code>ntoskrnl.exe</code>，获取到<code>HalPrivateDispatchTable</code>函数表，最后将函数表中的<code>HalTimerConvertAuxiliaryCounterToPerformanceCounter</code>替换成<code>sub_1400010A0</code>，并且获取到全局进程表保存起来。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-7.png" alt="alt text"></p>
+<p>这边提前提一下R3进程的部分代码，实际是驱动将该函数进行Hook，将<code>NtConvertBetweenAuxiliaryCounterAndPerformanceCounter</code>作为R3-R0通信函数，通信数据的结构通过R3代码可以分析出来。</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">ComData</span></span><br><span class="line">&#123;</span><br><span class="line">    DWORD MagicNum;</span><br><span class="line">    DWORD Signal;</span><br><span class="line">    DWORD64 Pid;</span><br><span class="line">    DWORD64 RetData;</span><br><span class="line">    CHAR PAD[<span class="number">216</span>];</span><br><span class="line">&#125;;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-9.png" alt="alt text"></p>
+<p>R0这边Hook替换的函数分析，可以看到Signal如果是1就会触发蓝屏部分代码，Signal为2则遍历进程链表，寻找R3通信传来的对应Pid的EProcess，然后获取CreateTime数据返回到R3。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-8.png" alt="alt text"></p>
+<p>上文EPROCESS结构通过Windbg的<code>dt nt!_EPROCESS</code>命令可以获得，可以通过偏移知道代码中实际对应是什么数据，若在0x1cb偏移前，则再需要<code>dt nt!_KPROCESS</code>，获取第一部分的结构。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-10.png" alt="alt text"></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-11.png" alt="alt text"></p>
+<p>实际用到的只有如下数据：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">struct</span> <span class="title class_">_EPROCESS</span></span><br><span class="line">&#123;</span><br><span class="line">    CHAR PAD[<span class="number">464</span>];</span><br><span class="line">    DWORD64 UniqueProcessId;        <span class="comment">// 0x1d0</span></span><br><span class="line">    LIST_ENTRY *ActiveProcessLinks; <span class="comment">// 0x1d8</span></span><br><span class="line">    CHAR PAD2[<span class="number">24</span>];</span><br><span class="line">    DWORD64 CreateTime;             <span class="comment">// 0x1f8</span></span><br><span class="line">    <span class="type">char</span> PAD3[<span class="number">1552</span>];</span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+
+<p>至此R0驱动程序分析完毕。</p>
+<h3 id="2-R3程序逆向分析"><a href="#2-R3程序逆向分析" class="headerlink" title="2. R3程序逆向分析"></a>2. R3程序逆向分析</h3><p>main函数创建了一个窗口，并且获取了<code>NtConvertBetweenAuxiliaryCounterAndPerformanceCounter</code>函数作为通信函数使用，下一步分析WndProc函数。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-6.png" alt="alt text"></p>
+<p>存在两个输入框以及按钮，按下<code>Create</code>按钮则会获取输入的用户名以及Secret。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-12.png" alt="alt text"></p>
+<h4 id="加密流程分析"><a href="#加密流程分析" class="headerlink" title="加密流程分析"></a>加密流程分析</h4><p>调用该函数与R0驱动进行通信，传递Signal是2，传过去的Pid是<code>GetCurrentProcessId</code>，也就是当前进程ID，驱动会返回当前进程的<code>CreateTime</code>数据。</p>
+<p>然后调用BCryptGenRandom随机初始化一个48字节的pbBuffer，用于后续的加密使用。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-13.png" alt="alt text"></p>
+<p>下面这部分是将随机的48字节作为两部分使用，前32字节作为Key，后16字节作为IV，对用户输入的Secret进行AES-CBC加密。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-14.png" alt="alt text"></p>
+<p>加密完，将48字节异或上驱动返回的<code>CreateTime</code>数据，加密了密钥和IV。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-15.png" alt="alt text"></p>
+<p>将输入的用户名进行Hash加密，作为<code>Mailslot</code>路径名和<strong>映射空间名</strong>的后缀，调用<code>CreateMailslotA</code>创建一个邮槽并将返回句柄存在全局的hObject内存位置，将加密的密文写入到邮槽中，再创建一个内存映射，将句柄保存的内存地址进行映射。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-16.png" alt="alt text"></p>
+<h4 id="什么是邮件槽"><a href="#什么是邮件槽" class="headerlink" title="什么是邮件槽"></a>什么是邮件槽</h4><p>邮槽（MailSlot）是Windows提供的一种单向进程间通信机制，只由客户端向服务端单向发送数据。特点是单向通信以及广播通信。</p>
+<p>流程：</p>
+<ol>
+<li>客户端通过CreateMailslotA创建一个邮槽对象。</li>
+<li>客户端通过WriteFile函数写入消息到邮槽中。</li>
+<li>服务端通过CreateMailslot创建邮槽，并读取相应数据。</li>
+</ol>
+<p>命名格式是”.\mailslot\路径名”</p>
+<p>由于邮槽是有自己的一个数据储存结构，后续会对这点进行逆向分析。</p>
+<h4 id="解密流程分析"><a href="#解密流程分析" class="headerlink" title="解密流程分析"></a>解密流程分析</h4><p>点击<code>Check Secret</code>按钮，会调用以下部分代码。</p>
+<p>获取当前的用户名，然后将用户名Hash作为映射空间名后缀，打开刚刚同用户名创建邮槽数据时映射的内存，拿到hObject数据，也就是Mailslot的句柄，再调用<code>GetMailslotInfo</code>获取邮槽中的数据大小，调用<code>ReadFile</code>获取邮槽中的密文数据。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-20.png" alt="alt text"></p>
+<p>与R0驱动进程通信再次获取当前进程的<code>CreateTime</code>数据，异或解密刚刚被异或加密的pbBuffer，也就是（Key+IV）共48字节数据。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-18.png" alt="alt text"></p>
+<p>使用解密的Key和IV对刚刚获取的密文进行AES-CBC解密，与加密是对称的，解密完毕后又将（Key+IV）48字节异或<code>CreateTime</code>进行数据加密。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-19.png" alt="alt text"></p>
+<p>最后红框处将解密文本与窗口输入的Secret文本进行比对，若匹配则弹出”Secret”信息框，不匹配则调用下面部分代码。</p>
+<p>打开对应用户名的邮槽对象，将当前解密的数据写回邮槽中，并且设置Signal为1，与R0驱动进行通信，也就触发了R0驱动的那个[0]地址赋值异常，触发蓝屏。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-24.png" alt="alt text"></p>
+<h3 id="3-题目流程分析"><a href="#3-题目流程分析" class="headerlink" title="3. 题目流程分析"></a>3. 题目流程分析</h3><p>已知题目DMP附件是由于驱动触发蓝屏时转储的，驱动触发蓝屏原因是：R3程序请求用户名获取的对应密文，解密后不匹配当前窗口中的Secret。</p>
+<p>而取证阶段，我们通过<code>!process 0 0</code>遍历进程发现了存在两个<code>aPersonalVault.exe</code>，所以会存在一种情况造成蓝屏：</p>
+<p>两个进程分别通过不同的原用户名创建了两份邮槽储存密文，然后其中一个进程误输错用户名，访问了另一个进程的邮槽，获取到了不是属于他密钥加密的密文，自然也无法解密出明文数据，比对失败后则通信Signal为1的消息，触发蓝屏。</p>
+<p>整体流程：</p>
+<ol>
+<li><p>两个进程分别用生成的不同随机密钥加密了两份Secret，储存到了两个邮槽当中。</p>
+</li>
+<li><p>进程1通过错误用户名访问到了进程2的邮槽，使用进程1的密钥进行了数据解密，匹配失败，将解密后数据写回到进程2的邮槽中，然后触发蓝屏。</p>
+</li>
+</ol>
+<p>逆向流程：</p>
+<ol>
+<li><p>获取两个进程中被加密的48字节（Key+IV）数据，然后再获取两个进程的<code>CreateTime</code>，将48字节和<code>CreateTime</code>进行异或得到两份AES的密钥和IV。</p>
+</li>
+<li><p>获取两个进程创建的邮槽中的密文数据。</p>
+</li>
+<li><p>进程1的密文是可以直接通过进程1的密钥和IV进行AES-CBC解密出明文1。</p>
+</li>
+<li><p>进程2的密文由于被进程1解密过一次，并且重写覆盖到邮槽数据中，所以需要先使用进程1的密钥和IV进行AES-CBC加密一次，再用进程2的密钥和IV进行AES-CBC解密，最终得到明文2.</p>
+</li>
+</ol>
+<p>所以可以直接提取两个进程的被加密的（Key+IV），以及各自的<code>CreateTime</code>，从而解密出原始的两份（Key+IV）。</p>
+<p>以及最重要的是接下来需要分析邮槽相关API以及数据结构，从而提取两份密文。</p>
+<h3 id="4-密钥提取"><a href="#4-密钥提取" class="headerlink" title="4. 密钥提取"></a>4. 密钥提取</h3><p>可以从R3程序找到（Key+IV）储存的偏移，即<code>exe+0x26BA8</code></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-25.png" alt="alt text"></p>
+<p>以下是刚刚遍历得到的两个进程数据，Eprocess分别是ffffef063fbe8080、ffffef063fbc1080。</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">PROCESS ffffef063fbe8080</span><br><span class="line">    SessionId: none  Cid: 0fa8    Peb: 9f83185000  ParentCid: 14b0</span><br><span class="line">    DirBase: 840fe000  ObjectTable: ffffa687a7241740  HandleCount: 161.</span><br><span class="line">    Image: aPersonalVault.exe</span><br><span class="line"></span><br><span class="line">PROCESS ffffef063fbc1080</span><br><span class="line">    SessionId: none  Cid: 26f0    Peb: 9216e1a000  ParentCid: 14b0</span><br><span class="line">    DirBase: 1296dc000  ObjectTable: ffffa687a6dd3b40  HandleCount: 165.</span><br><span class="line">    Image: aPersonalVault.exe</span><br></pre></td></tr></table></figure>
+
+<p>需要先使用<code>.process /r /p Eprocess地址</code>，切换到对应进程，才能通过当前进程Base地址+偏移读取到目标程序中的数据。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-26.png" alt="alt text"></p>
+<p>再通过<code>lm vm aPersonalVault</code>命令查看进程模块信息，获取到进程基地址，两个进程都是同一个基地址，所以需要切换进程才能访问对应进程的数据。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-27.png" alt="alt text"></p>
+<p><code>db 00007ff611d10000+0x26BA8</code>查询字节，得到48字节被加密的（Key+IV），切换到另一个进程同样操作，即可以得到两份被加密的（Key+IV）。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-28.png" alt="alt text"></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-29.png" alt="alt text"></p>
+<p>可以使用<code>.writemem C:\Users\admin\Desktop\Key_and_IV.dat 00007ff611d36ba8 L30</code>命令导出目标地址0x30长度的字节到文件中。</p>
+<h3 id="5-进程CreateTime获取"><a href="#5-进程CreateTime获取" class="headerlink" title="5. 进程CreateTime获取"></a>5. 进程CreateTime获取</h3><p>通过获取到的两个进程的Eprocess地址，转成_EPROCESS结构查看，即可找到CreateTime数据。</p>
+<p><code>dt nt!_EPROCESS ffffef063fbe8080</code></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-48.png" alt="alt text"></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-49.png" alt="alt text"></p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">0x01dc3fe6ed454439</span><br><span class="line">0x01dc3fe6f02a77eb</span><br></pre></td></tr></table></figure>
+
+<h3 id="6-邮槽逆向分析"><a href="#6-邮槽逆向分析" class="headerlink" title="6. 邮槽逆向分析"></a>6. 邮槽逆向分析</h3><h4 id="前置分析"><a href="#前置分析" class="headerlink" title="前置分析"></a>前置分析</h4><p>注意到R3程序创建邮槽的句柄是保存在自身进程的全局地址中，所以可以直接像上文提取密钥相关数据一样操作，切换进程，读取对应偏移数据，得到两个进程的邮槽句柄。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-30.png" alt="alt text"></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-31.png" alt="alt text"></p>
+<p>获取到两个句柄分别是0x27C和0x280。</p>
+<p>ffffef063fbc1080:</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-34.png" alt="alt text"></p>
+<p>ffffef063fbe8080:</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-33.png" alt="alt text"></p>
+<p>使用<code>!handle 27c f ffffef063fbc1080</code>命令获取该进程0x27C句柄的信息。</p>
+<p>可以看到Name是<code>\mailslot_e60a23e2</code>，也就是R3看到的创建的邮槽的名字，后面的是用户名的Hash值，Object地址是<code>ffffe70b7f057380</code>。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-35.png" alt="alt text"></p>
+<p>此类型的句柄都是_FILE_OBJECT结构类型，使用<code>dt nt!_FILE_OBJECT ffffe70b7f057380</code>将目标地址转成指定结构查看。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-36.png" alt="alt text"></p>
+<p>点击DeviceObject，发现设备是Msfs驱动，也就是msfs.sys，是Windows R0层控制邮槽操作的驱动，所以接下来就对msfs.sys进行逆向分析。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-37.png" alt="alt text"></p>
+<h4 id="msfs-sys逆向分析"><a href="#msfs-sys逆向分析" class="headerlink" title="msfs.sys逆向分析"></a>msfs.sys逆向分析</h4><p>由于从DMP中Dump出来的msfs.sys IAT有点小问题，所以这边使用自己主机中的msfs.sys进行逆向分析。</p>
+<p>DriverEntry函数，这边初始化了各种IRP函数，主要看的是ReadFile对应回调的MsFsdRead，R3层通过ReadFile获取邮槽中的数据，因为只需要获取到邮槽中的数据，所以只需要分析MsFsdRead函数，得到邮槽结构，即可寻址找到邮槽数据。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-39.png" alt="alt text"></p>
+<p>MsFsdRead调用了MsCommonRead，然后再调用了MsReadDataQueue，先从当前的邮槽FileObject获取FsContext指针，加上0x88传入函数。</p>
+<p>后续UserBuffer和Length就是要返回的数据指针以及读取大小。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-41.png" alt="alt text"></p>
+<p>可以从memcpy的传参返回去看，可以找到对应的数据指针以及数据长度的寻址计算方法，所以就可以通过上文得到的两个FileObject地址，寻址找到两个邮槽密文数据，以及数据长度。</p>
+<p><code>pData = *(void**)(*(QWORD*)(FileObject-&gt;FsContext + 0x88 + 0x18) - 8 + 0x28)</code></p>
+<p><code>Datalength = *(DWORD*)(*(QWORD*)(FileObject-&gt;FsContext + 0x88 + 0x18) - 8 + 0x20)</code></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-42.png" alt="alt text"></p>
+<p>注意一点，上面是对主机的msfs.sys进行逆向分析，不是目标DMP系统中的msfs.sys，所以相关偏移可能不太一样，需要同样使用Volatility3进行Dump出msfs.sys，用ida分析。</p>
+<p>发现这边实际是<code>FsContext+0x118</code>，并且MsReadDataQueue内的的寻址是和上文一致，只需要修改FsContext添加的偏移即可。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-43.png" alt="alt text"></p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-44.png" alt="alt text"></p>
+<p>最终数据和数据长度寻址如下：</p>
+<p><code>pData = *(void**)(*(QWORD*)(FileObject-&gt;FsContext + 0x118 + 0x18) - 8 + 0x28)</code></p>
+<p><code>Datalength = *(DWORD*)(*(QWORD*)(FileObject-&gt;FsContext + 0x118 + 0x18) - 8 + 0x20)</code></p>
+<h3 id="7-密文提取"><a href="#7-密文提取" class="headerlink" title="7. 密文提取"></a>7. 密文提取</h3><p>通过上文获取的两个邮槽的FileObject，获取FsContext，寻址得到邮槽数据以及数据长度。</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-46.png" alt="alt text"></p>
+<p>Eprocess ffffef063fbc1080:</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-45.png" alt="alt text"></p>
+<p>Eprocess ffffef063fbe8080:</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-47.png" alt="alt text"></p>
+<p>使用命令导出密文到文件即可。</p>
+<p><code>.writemem C:\Users\admin\Desktop\EncData_1.dat ffffa687a5efa7a8 L80</code></p>
+<p><code>.writemem C:\Users\admin\Desktop\EncData_2.dat ffffa687a8d145d8 L50</code></p>
+<h2 id="0x3-解密"><a href="#0x3-解密" class="headerlink" title="0x3 解密"></a>0x3 解密</h2><p>通过两份<code>CreateTime</code>值和两份（Key+IV）值异或，得到两份AES密钥和IV。</p>
+<p>解密代码：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;iostream&gt;</span></span></span><br><span class="line"><span class="meta">#<span class="keyword">include</span> <span class="string">&lt;Windows.h&gt;</span></span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="type">int</span> <span class="title">main</span><span class="params">()</span></span></span><br><span class="line"><span class="function"></span>&#123;</span><br><span class="line">    <span class="type">uint8_t</span> EncKeyIV_1080[]&#123;<span class="number">0x45</span>, <span class="number">0x71</span>, <span class="number">0x9c</span>, <span class="number">0x96</span>, <span class="number">0xf3</span>, <span class="number">0x11</span>, <span class="number">0x80</span>, <span class="number">0x2e</span>, <span class="number">0x9d</span>, <span class="number">0xac</span>, <span class="number">0xf2</span>, <span class="number">0x94</span>, <span class="number">0x64</span>, <span class="number">0x4e</span>, <span class="number">0xc7</span>, <span class="number">0xe5</span>, <span class="number">0x52</span>, <span class="number">0xa4</span>, <span class="number">0x46</span>, <span class="number">0x35</span>, <span class="number">0x5e</span>, <span class="number">0x86</span>, <span class="number">0x72</span>, <span class="number">0x75</span>, <span class="number">0xa9</span>, <span class="number">0xb7</span>, <span class="number">0xbf</span>, <span class="number">0x80</span>, <span class="number">0x52</span>, <span class="number">0xd0</span>, <span class="number">0x06</span>, <span class="number">0xa2</span>, <span class="number">0xc9</span>, <span class="number">0x62</span>, <span class="number">0xdd</span>, <span class="number">0x9c</span>, <span class="number">0xf2</span>, <span class="number">0xee</span>, <span class="number">0x60</span>, <span class="number">0x5e</span>, <span class="number">0xa0</span>, <span class="number">0x6b</span>, <span class="number">0x4c</span>, <span class="number">0xcf</span>, <span class="number">0xb5</span>, <span class="number">0xef</span>, <span class="number">0x0d</span>, <span class="number">0x82</span>&#125;;</span><br><span class="line">    <span class="type">uint64_t</span> CreateTime_1080 = <span class="number">0x01dc3fe6ed454439</span>;</span><br><span class="line"></span><br><span class="line">    <span class="type">uint8_t</span> EncKeyIV_8080[]&#123;<span class="number">0x20</span>, <span class="number">0x51</span>, <span class="number">0xb5</span>, <span class="number">0x07</span>, <span class="number">0x07</span>, <span class="number">0x70</span>, <span class="number">0xb8</span>, <span class="number">0x0e</span>, <span class="number">0xfc</span>, <span class="number">0xa3</span>, <span class="number">0x9c</span>, <span class="number">0x30</span>, <span class="number">0x54</span>, <span class="number">0x92</span>, <span class="number">0xd6</span>, <span class="number">0x44</span>, <span class="number">0x9d</span>, <span class="number">0x08</span>, <span class="number">0xe2</span>, <span class="number">0x02</span>, <span class="number">0xfe</span>, <span class="number">0x81</span>, <span class="number">0xd1</span>, <span class="number">0xf6</span>, <span class="number">0x70</span>, <span class="number">0xb6</span>, <span class="number">0x86</span>, <span class="number">0x35</span>, <span class="number">0x20</span>, <span class="number">0xb4</span>, <span class="number">0xa6</span>, <span class="number">0x6e</span>, <span class="number">0xaf</span>, <span class="number">0x40</span>, <span class="number">0xdf</span>, <span class="number">0x21</span>, <span class="number">0xda</span>, <span class="number">0x73</span>, <span class="number">0x21</span>, <span class="number">0x01</span>, <span class="number">0x3a</span>, <span class="number">0xfa</span>, <span class="number">0x99</span>, <span class="number">0x1c</span>, <span class="number">0xe6</span>, <span class="number">0x56</span>, <span class="number">0x69</span>, <span class="number">0x00</span>&#125;;</span><br><span class="line">    <span class="type">uint64_t</span> CreateTime_8080 = <span class="number">0x01dc3fe6f02a77eb</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">48</span>; i += <span class="number">8</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        *(<span class="type">uint64_t</span> *)(EncKeyIV_1080 + i) ^= CreateTime_1080;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">48</span>; i += <span class="number">8</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        *(<span class="type">uint64_t</span> *)(EncKeyIV_8080 + i) ^= CreateTime_8080;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;AES Key_1(1080): &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, EncKeyIV_1080[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;AES IV_1(1080): &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">16</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, EncKeyIV_1080[<span class="number">32</span> + i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;AES Key_2(8080): &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">32</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, EncKeyIV_8080[i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line"></span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;AES IV_2(8080): &quot;</span>);</span><br><span class="line">    <span class="keyword">for</span> (<span class="type">int</span> i = <span class="number">0</span>; i &lt; <span class="number">16</span>; i++)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="built_in">printf</span>(<span class="string">&quot;%02X &quot;</span>, EncKeyIV_8080[<span class="number">32</span> + i]);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="built_in">printf</span>(<span class="string">&quot;\n&quot;</span>);</span><br><span class="line">    <span class="keyword">return</span> <span class="number">0</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<p>Output:</p>
+<figure class="highlight plaintext"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">AES Key_1(1080): 7C 35 D9 7B 15 2E 5C 2F A4 E8 B7 79 82 71 1B E4 6B E0 03 D8 B8 B9 AE 74 90 F3 FA 6D B4 EF DA A3 </span><br><span class="line">AES IV_1(1080): F0 26 98 71 14 D1 BC 5F 99 2F 09 22 53 D0 D1 83 </span><br><span class="line">AES Key_2(8080): CB 26 9F F7 E1 4F 64 0F 17 D4 B6 C0 B2 AD 0A 45 76 7F C8 F2 18 BE 0D F7 9B C1 AC C5 C6 8B 7A 6F </span><br><span class="line">AES IV_2(8080): 44 37 F5 D1 3C 4C FD 00 D1 8D B3 EC 00 69 B5 01 </span><br></pre></td></tr></table></figure>
+
+<p>上文流程分析可知，一个密文可以被其中一对密钥+IV直接解密，而另一个密文需要被一对密钥+IV加密后再用另一对密钥+IV解密，直接尝试配对解密即可。</p>
+<p>可直接解密密文：</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-50.png" alt="alt text"></p>
+<p>被解密过的密文：</p>
+<p><img src="/2025/10/22/QWBS9-Secured-Personal-Vault/image-51.png" alt="alt text"></p>
+<p><code>flag&#123;Making_challenge_is_hard_manage_a_secure_vault_is_more_difficult&#125;</code></p>
+</article><div class="tag_share"><div class="post-meta__tag-list"><a class="post-meta__tags" href="/tags/CTF%E6%AF%94%E8%B5%9B/">CTF比赛</a></div><div class="post-share"><div class="social-share" data-image="/img/butterfly-icon.png" data-sites="facebook,twitter,wechat,weibo,qq"></div><link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/css/share.min.css" media="print" onload="this.media='all'"><script src="https://cdn.jsdelivr.net/npm/butterfly-extsrc/sharejs/dist/js/social-share.min.js" defer></script></div></div><nav class="pagination-post" id="pagination"><a class="pagination-related full-width" href="/2025/09/20/WMCTF2025-DevNote/" title="WMCTF2025 VideoPlayer 逆向出题笔记"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info"><div class="info-1"><div class="info-item-1">上一篇</div><div class="info-item-2">WMCTF2025 VideoPlayer 逆向出题笔记</div></div><div class="info-2"><div class="info-item-1">WMCTF2025 逆向出题笔记这次我出的题预期难度定在了Hard，最后结束在三解，符合预期。这次的项目代码量很大，费了不少时间去构思，就是为了出不恶心人的难题，是合理的难，而且还不失乐趣。开源地址：VideoPlayer...</div></div></div></a></nav><div class="relatedPosts"><div class="headline"><i class="fas fa-thumbs-up fa-fw"></i><span>相关推荐</span></div><div class="relatedPosts-list"><a class="pagination-related" href="/2025/03/31/2025Tencent/" title="2025腾讯游戏安全技术竞赛 PC客户端安全 初赛WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-31</div><div class="info-item-2">2025腾讯游戏安全技术竞赛 PC客户端安全 初赛WP</div></div><div class="info-2"><div class="info-item-1">2025腾讯游戏安全技术竞赛 PC客户端安全...</div></div></div></a><a class="pagination-related" href="/2025/04/27/ACTF-Deeptx/" title="ACTF2025 Reverse Deeptx WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-04-27</div><div class="info-item-2">ACTF2025 Reverse Deeptx WP</div></div><div class="info-2"><div class="info-item-1">ACTF2025 Reverse Deeptx...</div></div></div></a><a class="pagination-related" href="/2025/06/01/D3CTF-Reverse/" title="D3CTF Reverse WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-06-01</div><div class="info-item-2">D3CTF Reverse WP</div></div><div class="info-2"><div class="info-item-1">前言这次比赛做了d3kernel和locked door这两题，也是都拿下了一血。这两题都是强对抗类型，和传统的加解密类型题目有区别。kernel是内核逆向&amp;反调试对抗；第二题是vmp对抗+real world类型，模仿的场景是商业软件许可证伪造逆向。这两题都挺有意思的，质量也都很高。 locked door分析查壳查壳发现是vmp 3.5.1+的壳，  绕过反调试由于vmp...</div></div></div></a><a class="pagination-related" href="/2025/07/21/DownUnderCTF2025/" title="DownUnderCTF2025 WP"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-07-21</div><div class="info-item-2">DownUnderCTF2025 WP</div></div><div class="info-2"><div class="info-item-1">DownUnderCTF Reverse WP这次比赛没有安卓，打的很开心（，给最后一题hard难度的swift逆向折磨到凌晨三点多才AK，总体难度还行，python那题比较有新意，Swift纯是语言本身拔高的难度。 rockymain函数将输入文本进行md5，然后与s1比对，若比对成功则解密文本输出。  直接网站碰撞md5，得到”emergencycall911”  运行输入即可得到Flag。  DUCTF{In_the_land_of_cubicles_lined_in_gray_Where_the_clock_ticks_loud_by_the_light_of_day} skippystone函数和decryptor函数存在无效指针读取操作。   nop对应的两处汇编即可。   运行，自解密得到Flag。  DUCTF{There_echoes_a_chorus_enending_and_wild_Laughter_and_gossip_unruly_and_piled} godot直接拖入Godot RE...</div></div></div></a><a class="pagination-related" href="/2025/05/25/ISCC-Enigma/" title="ISCC擂台赛逆向题 Enigma 题解"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-05-25</div><div class="info-item-2">ISCC擂台赛逆向题 Enigma 题解</div></div><div class="info-2"><div class="info-item-1">前言这题当时赛中很早就写出爆破解密脚本了，但是一直没爆出来，赛后和出题人咨询发现是密文错了，并且发现其实是程序本身出错了，xor 0x10的代码并没有给实际密文数据段进行xor，而是给一个空数据段xor了，所以导致密文没有xor 0x10，所以是错的密文，也就无法爆破。这题本身题目难度还行，WASM逆向+AES魔改+Siphash+排列爆破。 分析程序流程分析下载得到bin文件，xor...</div></div></div></a><a class="pagination-related" href="/2025/03/24/NCTF2024/" title="NCTF2024"><div class="cover" style="background: var(--default-bg-color)"></div><div class="info text-center"><div class="info-1"><div class="info-item-1"><i class="far fa-calendar-alt fa-fw"></i> 2025-03-24</div><div class="info-item-2">NCTF2024</div></div><div class="info-2"><div class="info-item-1">NCTF 2024 Reverse WP前言这次也是擦边#6拿下奖金，组队的师傅们都十分强大，合力拿下。 Re这次摸了三题，剩一题安卓不太熟悉安卓逆向看了一眼就没做，但是赛后发现其实没那么难（。ezDOS 8086汇编题刚好撞上我GHCTF出的题，很熟悉直接秒了，偷摸了个一血。然后gogo这题的golang vm研究了挺久，拿下了三血，实际加密不是很复杂。总体下来这几题re出的都挺不错，收获也很多，对vm的题型也更加熟悉了。 ezDOS分析程序中间出现的花指令都直接nop去除，然后Apply patch到程序。  程序要求输入38长度字符串，然后进行一系列变种类RC4算法加密，然后与0x141地址的38字节数据进行比对。  使用dosbox动调，在FA代码处是对取出的al对输入的字符串进行xor加密。0x32是取出的异或值，0x31是输入的字符’1’。   直接debug一直循环执行这边，即可拿到对输入字符串异或的一系列异或值。 32 7d 59 7a f3 0d b3 7b 64 8c eb 28 c4 a4 50 30 a0 ed 27 6a e3 76 69 0c da...</div></div></div></a></div></div></div><div class="aside-content" id="aside-content"><div class="card-widget card-info text-center"><div class="avatar-img"><img src="/img/butterfly-icon.png" onerror="this.onerror=null;this.src='/img/friend_404.gif'" alt="avatar"/></div><div class="author-info-name">Liv</div><div class="author-info-description">欢迎来到Liv的博客。</div><div class="site-data"><a href="/archives/"><div class="headline">文章</div><div class="length-num">19</div></a><a href="/tags/"><div class="headline">标签</div><div class="length-num">2</div></a><a href="/categories/"><div class="headline">分类</div><div class="length-num">2</div></a></div><a id="card-info-btn" target="_blank" rel="noopener" href="https://github.com/TKazer"><i class="fab fa-github"></i><span>Follow Me</span></a><div class="card-info-social-icons"><a class="social-icon" href="https://github.com/TKazer" target="_blank" title="Github"><i class="fab fa-github" style="color: #24292e;"></i></a></div></div><div class="card-widget card-announcement"><div class="item-headline"><i class="fas fa-bullhorn fa-shake"></i><span>公告</span></div><div class="announcement_content">This is my Blog</div></div><div class="sticky_layout"><div class="card-widget" id="card-toc"><div class="item-headline"><i class="fas fa-stream"></i><span>目录</span><span class="toc-percentage"></span></div><div class="toc-content"><ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#Secured-Personal-Vault"><span class="toc-number">1.</span> <span class="toc-text">Secured Personal Vault</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E9%A2%98%E7%9B%AE%E8%80%83%E7%82%B9"><span class="toc-number">1.1.</span> <span class="toc-text">题目考点</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x1-%E5%8F%96%E8%AF%81%E9%98%B6%E6%AE%B5"><span class="toc-number">1.2.</span> <span class="toc-text">0x1 取证阶段</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x2-%E9%80%86%E5%90%91%E9%98%B6%E6%AE%B5"><span class="toc-number">1.3.</span> <span class="toc-text">0x2 逆向阶段</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#1-R0%E9%A9%B1%E5%8A%A8%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">1.3.1.</span> <span class="toc-text">1. R0驱动逆向分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#2-R3%E7%A8%8B%E5%BA%8F%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">1.3.2.</span> <span class="toc-text">2. R3程序逆向分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%8A%A0%E5%AF%86%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">1.3.2.1.</span> <span class="toc-text">加密流程分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E4%BB%80%E4%B9%88%E6%98%AF%E9%82%AE%E4%BB%B6%E6%A7%BD"><span class="toc-number">1.3.2.2.</span> <span class="toc-text">什么是邮件槽</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#%E8%A7%A3%E5%AF%86%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">1.3.2.3.</span> <span class="toc-text">解密流程分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#3-%E9%A2%98%E7%9B%AE%E6%B5%81%E7%A8%8B%E5%88%86%E6%9E%90"><span class="toc-number">1.3.3.</span> <span class="toc-text">3. 题目流程分析</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#4-%E5%AF%86%E9%92%A5%E6%8F%90%E5%8F%96"><span class="toc-number">1.3.4.</span> <span class="toc-text">4. 密钥提取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#5-%E8%BF%9B%E7%A8%8BCreateTime%E8%8E%B7%E5%8F%96"><span class="toc-number">1.3.5.</span> <span class="toc-text">5. 进程CreateTime获取</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#6-%E9%82%AE%E6%A7%BD%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">1.3.6.</span> <span class="toc-text">6. 邮槽逆向分析</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#%E5%89%8D%E7%BD%AE%E5%88%86%E6%9E%90"><span class="toc-number">1.3.6.1.</span> <span class="toc-text">前置分析</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#msfs-sys%E9%80%86%E5%90%91%E5%88%86%E6%9E%90"><span class="toc-number">1.3.6.2.</span> <span class="toc-text">msfs.sys逆向分析</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#7-%E5%AF%86%E6%96%87%E6%8F%90%E5%8F%96"><span class="toc-number">1.3.7.</span> <span class="toc-text">7. 密文提取</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#0x3-%E8%A7%A3%E5%AF%86"><span class="toc-number">1.4.</span> <span class="toc-text">0x3 解密</span></a></li></ol></li></ol></div></div><div class="card-widget card-recent-post"><div class="item-headline"><i class="fas fa-history"></i><span>最新文章</span></div><div class="aside-list"><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/10/22/QWBS9-Secured-Personal-Vault/" title="强网杯S9 Secured Personal Vault WP">强网杯S9 Secured Personal Vault WP</a><time datetime="2025-10-22T10:21:16.000Z" title="发表于 2025-10-22 18:21:16">2025-10-22</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/09/20/WMCTF2025-DevNote/" title="WMCTF2025 VideoPlayer 逆向出题笔记">WMCTF2025 VideoPlayer 逆向出题笔记</a><time datetime="2025-09-20T08:11:34.000Z" title="发表于 2025-09-20 16:11:34">2025-09-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/20/KCTF2025/" title="KCTF2025">KCTF2025</a><time datetime="2025-08-20T08:20:46.000Z" title="发表于 2025-08-20 16:20:46">2025-08-20</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/08/19/SekaiCTF2025/" title="SekaiCTF 2025 Reverse WP">SekaiCTF 2025 Reverse WP</a><time datetime="2025-08-19T13:45:38.000Z" title="发表于 2025-08-19 21:45:38">2025-08-19</time></div></div><div class="aside-list-item no-cover"><div class="content"><a class="title" href="/2025/07/31/NepCTF2025-XSafe/" title="NepCTF2025 XSafe WP">NepCTF2025 XSafe WP</a><time datetime="2025-07-31T12:28:40.000Z" title="发表于 2025-07-31 20:28:40">2025-07-31</time></div></div></div></div></div></div></main><footer id="footer" style="background-image: url(https://i.postimg.cc/Y2VMBKkT/windows-11-landscape-scenery-sunrise-stock-day-light-3840x2400-5667.jpg);"><div id="footer-wrap"><div class="copyright">&copy;2019 - 2025 By Liv</div><div class="framework-info"><span>框架 </span><a target="_blank" rel="noopener" href="https://hexo.io">Hexo</a><span class="footer-separator">|</span><span>主题 </span><a target="_blank" rel="noopener" href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a></div></div></footer></div><div id="rightside"><div id="rightside-config-hide"><button id="readmode" type="button" title="阅读模式"><i class="fas fa-book-open"></i></button><button id="darkmode" type="button" title="日间和夜间模式切换"><i class="fas fa-adjust"></i></button><button id="hide-aside-btn" type="button" title="单栏和双栏切换"><i class="fas fa-arrows-alt-h"></i></button></div><div id="rightside-config-show"><button id="rightside-config" type="button" title="设置"><i class="fas fa-cog fa-spin"></i></button><button class="close" id="mobile-toc-button" type="button" title="目录"><i class="fas fa-list-ul"></i></button><button id="go-up" type="button" title="回到顶部"><span class="scroll-percent"></span><i class="fas fa-arrow-up"></i></button></div></div><div><script src="/js/utils.js"></script><script src="/js/main.js"></script><div class="js-pjax"></div><script async data-pjax src="//busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js"></script></div></body></html>
