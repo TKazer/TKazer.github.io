@@ -453,7 +453,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       isShowPercent && rightsideScrollPercent(currentTop)
       checkDocumentHeight()
-    }, 300)
+    }, 120)
 
     btf.addEventListenerPjax(window, 'scroll', scrollTask, { passive: true })
   }
@@ -606,6 +606,7 @@ document.addEventListener('DOMContentLoaded', () => {
     },
     darkmode: () => { // switch between light and dark mode
       const willChangeMode = document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark'
+      document.documentElement.classList.add('liv-theme-switching')
       if (willChangeMode === 'dark') {
         btf.activateDarkMode()
         GLOBAL_CONFIG.Snackbar !== undefined && btf.snackbarShow(GLOBAL_CONFIG.Snackbar.day_to_night)
@@ -615,6 +616,9 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       btf.saveToLocal.set('theme', willChangeMode, 2)
       handleThemeChange(willChangeMode)
+      const navThemeButton = document.getElementById('nav-darkmode')
+      navThemeButton && navThemeButton.setAttribute('aria-pressed', String(willChangeMode === 'dark'))
+      setTimeout(() => document.documentElement.classList.remove('liv-theme-switching'), 520)
     },
     'rightside-config': item => { // Show or hide rightside-hide-btn
       const hideLayout = item.firstElementChild
@@ -667,6 +671,12 @@ document.addEventListener('DOMContentLoaded', () => {
       rightSideFn[$target.id](e.currentTarget, $target)
     }
   })
+
+  const navThemeButton = document.getElementById('nav-darkmode')
+  if (navThemeButton) {
+    navThemeButton.setAttribute('aria-pressed', String(document.documentElement.getAttribute('data-theme') === 'dark'))
+    btf.addEventListenerPjax(navThemeButton, 'click', rightSideFn.darkmode)
+  }
 
   /**
    * menu

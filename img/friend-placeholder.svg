@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">默认友链头像</title>
+  <desc id="desc">由柔和蓝色圆环构成的简约头像</desc>
+  <defs>
+    <linearGradient id="surface" x1="24" y1="18" x2="138" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F8FAFF"/>
+      <stop offset="1" stop-color="#E7ECF8"/>
+    </linearGradient>
+    <linearGradient id="link" x1="48" y1="47" x2="116" y2="116" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8EA8F4"/>
+      <stop offset="1" stop-color="#5F7FE8"/>
+    </linearGradient>
+  </defs>
+  <rect width="160" height="160" rx="42" fill="url(#surface)"/>
+  <circle cx="80" cy="80" r="55" fill="#fff" fill-opacity=".58" stroke="#fff" stroke-width="2"/>
+  <path d="M68 91 56 103a18 18 0 0 1-25-25l18-18a18 18 0 0 1 25 0" fill="none" stroke="url(#link)" stroke-width="11" stroke-linecap="round"/>
+  <path d="m92 69 12-12a18 18 0 1 1 25 25l-18 18a18 18 0 0 1-25 0" fill="none" stroke="url(#link)" stroke-width="11" stroke-linecap="round"/>
+  <path d="m61 99 38-38" fill="none" stroke="url(#link)" stroke-width="11" stroke-linecap="round"/>
+</svg>
